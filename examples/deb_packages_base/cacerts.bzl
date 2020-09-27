@@ -10,7 +10,7 @@ cacerts = rule(
     attrs = {
         "deb": attr.label(
             allow_files = [".deb"],
-            single_file = True,
+            # single_file = True,
             mandatory = True,
         ),
         # Implicit dependencies.
