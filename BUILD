@@ -9,7 +9,7 @@ gazelle(
 )
 
 # update_deb_packages boilerplate
-load("@rules_pkg//tools/update_deb_packages:update_deb_packages.bzl", "update_deb_packages")
+load("//tools/update_deb_packages:update_deb_packages.bzl", "update_deb_packages")
 
 update_deb_packages(
     name = "update_deb_packages",

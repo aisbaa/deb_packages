@@ -43,7 +43,7 @@ pkg_tar(
     package_dir = "etc",
 )
 
-load("//examples/deb_packages/deb_packages_base:cacerts.bzl", "cacerts")
+load("//examples/deb_packages_base:cacerts.bzl", "cacerts")
 load("@debian_jessie_amd64//debs:deb_packages.bzl", "debian_jessie_amd64")
 load("@debian_stretch_amd64//debs:deb_packages.bzl", "debian_stretch_amd64")
 
