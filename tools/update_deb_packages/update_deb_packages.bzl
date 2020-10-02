@@ -35,7 +35,7 @@ _update_deb_packages_script = rule(
         "args": attr.string_list(),
         "pgp_keys": attr.label_list(),
         "_update_deb_packages": attr.label(
-            default = Label("//tools/update_deb_packages/src:update_deb_packages"),
+            default = Label("@deb_packages//:update_deb_packages"),
             allow_single_file = True,
             executable = True,
             cfg = "host",

@@ -27,3 +27,12 @@ go_binary(
         "@org_golang_x_crypto//openpgp:go_default_library",
     ],
 )
+
+load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
+pkg_tar(
+    name = "update_deb_packages_bin_tar",
+    srcs = [
+        ":update_deb_packages"
+    ],
+    visibility = ["//visibility:public"],
+)
