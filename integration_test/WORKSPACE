@@ -1,0 +1,91 @@
+workspace(name = "aisbaa_deb_packages_integration_test")
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
+
+#
+# docker rules ---------------------------------------------------------------
+#
+
+http_archive(
+    name = "io_bazel_rules_docker",
+    sha256 = "4521794f0fba2e20f3bf15846ab5e01d5332e587e9ce81629c7f96c793bb7036",
+    strip_prefix = "rules_docker-0.14.4",
+    urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.14.4/rules_docker-v0.14.4.tar.gz"],
+)
+
+load(
+    "@io_bazel_rules_docker//repositories:repositories.bzl",
+    container_repositories = "repositories",
+)
+
+container_repositories()
+
+load("@io_bazel_rules_docker//repositories:deps.bzl", container_deps = "deps")
+
+container_deps()
+
+load("@io_bazel_rules_docker//repositories:pip_repositories.bzl", "pip_deps")
+
+pip_deps()
+
+load(
+    "@io_bazel_rules_docker//container:container.bzl",
+    "container_pull",
+)
+
+container_pull(
+    name = "debian10",
+    registry = "index.docker.io",
+    repository = "debian",
+    # digest = "sha256-b838471e0d4a19fd67dd6adb5961315d9b3e8a205e8f3970d7a75cd746001c5b",
+    tag = "buster-20200908",
+)
+
+#
+# deb_packages rules ---------------------------------------------------------
+#
+
+http_archive(
+    name = "bazel_skylib",
+    sha256 = "1c531376ac7e5a180e0237938a2536de0c54d93f5c278634818e0efc952dd56c",
+    urls = [
+        "https://github.com/bazelbuild/bazel-skylib/releases/download/1.0.3/bazel-skylib-1.0.3.tar.gz",
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-skylib/releases/download/1.0.3/bazel-skylib-1.0.3.tar.gz",
+    ],
+)
+
+load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
+
+bazel_skylib_workspace()
+
+http_archive(
+    name = "deb_packages",
+    sha256 = "d44353c10235abf39cb464ff2972b0d7e81f08dde5b1d70addda6a4944e863af",
+    urls = [
+        "https://github.com/aisbaa/deb_packages/releases/download/0.1/deb_packages-v0.1.1.tar.gz",
+    ],
+)
+
+load("@deb_packages//:deb_packages.bzl", "deb_packages")
+
+# dowload gpg key for repo and
+http_file(
+    name = "buster_archive_key",
+    sha256 = "9c854992fc6c423efe8622c3c326a66e73268995ecbe8f685129063206a18043",
+    urls = ["https://ftp-master.debian.org/keys/archive-key-10.asc"],
+)
+
+deb_packages(
+    name = "debian_buster_amd64_pkgs",
+    arch = "amd64",
+    distro = "buster",
+    distro_type = "debian",
+    mirrors = [
+        "http://deb.debian.org/debian",
+    ],
+    packages = {
+    },
+    packages_sha256 = {
+    },
+    pgp_key = "buster_archive_key",
+)
