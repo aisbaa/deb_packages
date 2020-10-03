@@ -60,9 +60,9 @@ bazel_skylib_workspace()
 
 http_archive(
     name = "deb_packages",
-    sha256 = "d44353c10235abf39cb464ff2972b0d7e81f08dde5b1d70addda6a4944e863af",
+    sha256 = "e953e483868ee180478cd089ca6da4d9544752cfa1691afc1d7f8973fc525507",
     urls = [
-        "https://github.com/aisbaa/deb_packages/releases/download/0.1/deb_packages-v0.1.1.tar.gz",
+        "https://github.com/aisbaa/deb_packages/releases/download/0.1/deb_packages-v0.1.2.tar.gz",
     ],
 )
 
