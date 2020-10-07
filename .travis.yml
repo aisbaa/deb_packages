@@ -16,7 +16,7 @@ script:
   - bazel build :release
   - |
     RELEASE_ARCHIVE_PATH=$(realpath bazel-bin/release.tar.gz)
-    sed -i 's:RELEASE_FILE_LOCATION:$RELEASE_ARCHIVE_PATH:' integration_test/WORKSPACE
+    sed -i "s:RELEASE_FILE_LOCATION:$RELEASE_ARCHIVE_PATH:" integration_test/WORKSPACE
   - cd integration_test
   - bazel run :update_deb_packages
   - grep zsh WORKSPACE
