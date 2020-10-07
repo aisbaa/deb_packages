@@ -1,4 +1,4 @@
-workspace(name = "aisbaa_deb_packages_integration_test")
+workspace(name = "com_github_aisbaa_deb_packages_integration_test")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 
@@ -58,12 +58,24 @@ load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 
 bazel_skylib_workspace()
 
+http_file(
+    name = "bazelbuild_buildtools_buildifier",
+    sha256 = "9c854992fc6c423efe8622c3c326a66e73268995ecbe8f685129063206a18043",
+    urls = ["https://github.com/bazelbuild/buildtools/releases/download/3.5.0/buildifier"],
+)
+
+http_file(
+    name = "bazelbuild_buildtools_buildozer",
+    sha256 = "9c854992fc6c423efe8622c3c326a66e73268995ecbe8f685129063206a18043",
+    urls = ["https://github.com/bazelbuild/buildtools/releases/download/3.5.0/buildozer"],
+)
+
 http_archive(
     name = "deb_packages",
-    # sha256 = "RELEASE_FILE_SHA256",
+    sha256 = "RELEASE_ARCHIVE_CHECKSUM",
     urls = [
         # replaces this with url from github in your project
-        "file://RELEASE_FILE_LOCATION",
+        "file://RELEASE_ARCHIVE_LOCATION",
     ],
 )
 

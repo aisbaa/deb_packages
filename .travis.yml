@@ -15,8 +15,10 @@ before_install:
 script:
   - bazel build :release
   - |
-    RELEASE_ARCHIVE_PATH=$(realpath bazel-bin/release.tar.gz)
-    sed -i "s:RELEASE_FILE_LOCATION:$RELEASE_ARCHIVE_PATH:" integration_test/WORKSPACE
+    RELEASE_ARCHIVE_LOCATION=$(realpath bazel-bin/release.tar.gz)
+    RELEASE_ARCHIVE_CHECKSUM=$(sha256sum "${RELEASE_ARCHIVE_PATH}")
+    sed -i "s:RELEASE_ARCHIVE_LOCATION:$RELEASE_ARCHIVE_LOCATION:" integration_test/WORKSPACE
+    sed -i "s:RELEASE_ARCHIVE_CHECKSUM:$RELEASE_ARCHIVE_CHECKSUM:" integration_test/WORKSPACE
   - cd integration_test
   - bazel run :update_deb_packages
   - grep zsh WORKSPACE
