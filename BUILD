@@ -9,7 +9,8 @@ gazelle(
 )
 
 # update_deb_packages boilerplate
-load("//tools/update_deb_packages:update_deb_packages.bzl", "update_deb_packages")
+load("//deb_packages/tools/update_deb_packages:update_deb_packages.bzl",
+     "update_deb_packages")
 
 update_deb_packages(
     name = "update_deb_packages",
@@ -29,19 +30,11 @@ genrule(
 )
 
 pkg_tar(
-    name="deb_packages_bzl_tar",
-    srcs=[
-        "deb_packages.bzl",
-        "//:buildfile_for_release",
-    ],
-)
-
-pkg_tar(
     name = "release",
     extension = "tar.gz",
     deps = [
-        ":deb_packages_bzl_tar",
-        "//tools/update_deb_packages:update_deb_packages_bzl_tar",
-        "//tools/update_deb_packages/src:update_deb_packages_bin_tar"
+        "//deb_packages:deb_packages_bzl_tar",
+        "//deb_packages/tools/update_deb_packages:update_deb_packages_bzl_tar",
+        "//deb_packages/tools/update_deb_packages/src:update_deb_packages_bin_tar"
     ],
 )

@@ -1,4 +1,4 @@
-workspace(name = "com_github_aisbaa_deb_packages")
+workspace(name = "aisbaa_rules_deb_packages")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 
@@ -50,7 +50,7 @@ go_repository(
 #)
 
 # Example for using the deb_packages ruleset
-load("//:deb_packages.bzl", "deb_packages")
+load("//deb_packages:deb_packages.bzl", "deb_packages")
 
 # Not all of the following keys are actually used...
 
