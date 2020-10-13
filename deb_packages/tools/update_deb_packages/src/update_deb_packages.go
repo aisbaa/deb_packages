@@ -234,6 +234,7 @@ func getPackages(arch string, distroType string, distro string, mirrors []string
 
 func getStringField(fieldName string, fileName string, ruleName string, workspaceContents []byte) string {
 	// buildozer 'print FIELDNAME_GOES_HERE' FILENAME_GOES_HERE:RULENAME_GOES_HERE <WORKSPACE
+	log.Print("buildozer print "+fieldName, fileName+":"+ruleName)
 	cmd := exec.Command("buildozer", "print "+fieldName, fileName+":"+ruleName)
 	wsreader := bytes.NewReader(workspaceContents)
 	if fileName == "-" {
@@ -268,6 +269,7 @@ func getStringField(fieldName string, fileName string, ruleName string, workspac
 func getListField(fieldName string, fileName string, ruleName string, workspaceContents []byte) []string {
 	// buildozer 'print FIELDNAME_GOES_HERE' FILENAME_GOES_HERE:RULENAME_GOES_HERE <WORKSPACE
 	// TODO: better failure message if buildozer is not in PATH
+	log.Print("buildozer print "+fieldName, fileName+":"+ruleName)
 	cmd := exec.Command("buildozer", "print "+fieldName, fileName+":"+ruleName)
 	wsreader := bytes.NewReader(workspaceContents)
 	if fileName == "-" {
@@ -321,6 +323,7 @@ func getListField(fieldName string, fileName string, ruleName string, workspaceC
 
 func getMapField(fieldName string, fileName string, ruleName string, workspaceContents []byte) map[string]string {
 	// buildozer 'print FIELDNAME_GOES_HERE' FILENAME_GOES_HERE:RULENAME_GOES_HERE <WORKSPACE
+	log.Print("buildozer print "+fieldName, fileName+":"+ruleName)
 	cmd := exec.Command("buildozer", "print "+fieldName, fileName+":"+ruleName)
 	wsreader := bytes.NewReader(workspaceContents)
 	if fileName == "-" {
@@ -366,6 +369,7 @@ func getMapField(fieldName string, fileName string, ruleName string, workspaceCo
 
 func getAllLabels(labelName string, fileName string, ruleName string, workspaceContents []byte) map[string][]string {
 	// buildozer 'print label LABELNAME_GOES_HERE' FILENAME_GOES_HERE:RULENAME_GOES_HERE <WORKSPACE
+	log.Print("buildozer print label "+labelName, fileName+":"+ruleName)
 	cmd := exec.Command("buildozer", "print label "+labelName, fileName+":"+ruleName)
 	wsreader := bytes.NewReader(workspaceContents)
 	if fileName == "-" {
@@ -419,8 +423,10 @@ func setStringField(fieldName string, fieldContents string, fileName string, rul
 		if err := ioutil.WriteFile(tableFile, []byte(*forceTable), 0666); err != nil {
 			logFatalErr(err)
 		}
+		log.Print("buildozer -add_tables="+tableFile, "set "+fieldName+" "+fieldContents, fileName+":"+ruleName)
 		cmd = exec.Command("buildozer", "-add_tables="+tableFile, "set "+fieldName+" "+fieldContents, fileName+":"+ruleName)
 	} else {
+		log.Print("buildozer set "+fieldName+" "+fieldContents, fileName+":"+ruleName)
 		cmd = exec.Command("buildozer", "set "+fieldName+" "+fieldContents, fileName+":"+ruleName)
 	}
 	wsreader := bytes.NewReader(workspaceContents)
@@ -550,11 +556,12 @@ func updateWorkspaceRule(workspaceContents []byte, rule string) string {
 }
 
 func updateWorkspace(workspaceContents []byte) string {
-	rules := getListField("name", "-", "%deb_packages", workspaceContents)
+	rules := getListField("name", "-", "%deb_repository", workspaceContents)
 	cleanedRules := make([]string, len(rules))
 	copy(cleanedRules, rules)
 
 	for i, rule := range rules {
+		log.Print("rule: ", i, rule, "END")
 		tags := getListField("tags", "-", rule, workspaceContents)
 		for _, tag := range tags {
 			// drop rules with the "manual_update" tag
