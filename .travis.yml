@@ -16,7 +16,7 @@ script:
   - bazel build :release
   - |
     RELEASE_ARCHIVE_LOCATION=$(realpath bazel-bin/release.tar.gz)
-    RELEASE_ARCHIVE_CHECKSUM=$(sha256sum "${RELEASE_ARCHIVE_PATH}")
+    RELEASE_ARCHIVE_CHECKSUM=$(sha256sum "${RELEASE_ARCHIVE_LOCATION}" | cut -d' ' -f1)
     sed -i "s:RELEASE_ARCHIVE_LOCATION:$RELEASE_ARCHIVE_LOCATION:" integration_test/WORKSPACE
     sed -i "s:RELEASE_ARCHIVE_CHECKSUM:$RELEASE_ARCHIVE_CHECKSUM:" integration_test/WORKSPACE
   - cd integration_test
