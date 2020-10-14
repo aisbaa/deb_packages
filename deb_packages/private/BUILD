@@ -1,6 +1,6 @@
 exports_files(
     glob(["*.bzl"]),
-    visibility = ["//visibility:public"],
+    # visibility = ["//visibility:public"],
 )
 
 filegroup(
@@ -9,5 +9,5 @@ filegroup(
         "*.bzl",
         "BUILD",
     ]),
-    visibility = ["//visibility:public"],
+    visibility = ["//:__subpackages__"],
 )

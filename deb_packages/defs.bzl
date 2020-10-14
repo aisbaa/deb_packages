@@ -1,7 +1,7 @@
-load("@aisbaa_rules_deb_packages//deb_packages:deb_packages.bzl",
+load("@aisbaa_rules_deb_packages//deb_packages/private:deb_packages.bzl",
      _deb_packages = "deb_packages"
 )
-load("@aisbaa_rules_deb_packages//deb_packages/tools/update_deb_packages:update_deb_packages.bzl",
+load("@aisbaa_rules_deb_packages//deb_packages/private:update_deb_packages.bzl",
     _update_deb_packages = "update_deb_packages"
 )
 
