@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load("@aisbaa_rules_deb_packages//deb_packages/private:development_defs.bzl", "get_update_deb_packages")
+
 SCRIPT_CONTENT = """
 BASE=$(pwd)
 WORKSPACE=$(dirname $(readlink WORKSPACE))
@@ -67,9 +69,7 @@ _update_deb_packages_create_script = rule(
         "args": attr.string_list(),
         "pgp_keys": attr.label_list(),
         "_update_deb_packages": attr.label(
-            default = Label(
-                "@aisbaa_rules_deb_packages//deb_packages/tools/update_deb_packages/src:update_deb_packages"
-            ),
+            default = get_update_deb_packages(),
             allow_single_file = True,
             executable = True,
             cfg = "host",
