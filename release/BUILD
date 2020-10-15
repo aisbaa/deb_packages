@@ -41,7 +41,7 @@ genrule(
     outs = [
         "WORKSPACE",
     ],
-    cmd = "echo 'workspace( name \"aisbaa_rules_deb_packages\"])' >$@",
+    cmd = "echo 'workspace( name \"aisbaa_rules_deb_packages\")' >$@",
 )
 
 pkg_tar(
