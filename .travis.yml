@@ -23,4 +23,4 @@ script:
   - bazel run :update_deb_packages
   - grep zsh WORKSPACE
   - bazel run //image:zsh
-  - docker run -it --rm bazel/image:zsh -- zsh -c 'echo $SHELL'
+  - docker run -it --rm bazel/image:zsh zsh -c 'echo $SHELL'
