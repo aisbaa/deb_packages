@@ -16,15 +16,19 @@ load("@aisbaa_rules_deb_packages//deb_packages/private:development_defs.bzl", "g
 
 SCRIPT_CONTENT = """
 set -x
-BASE=$(pwd)
-WORKSPACE=$(dirname $(readlink WORKSPACE))
-export PATH="$BASE/{tool_path}:$PATH"
 
+# setup path additional required tools
+EXTRA_PATH=\"$(pwd)/$(dirname {the_tool_path})\"
+export PATH="$EXTRA_PATH:$PATH"
+
+# move to workspace directory to modify files
+WORKSPACE=$(dirname $(readlink WORKSPACE))
 cd "$WORKSPACE"
-update_deb_packages {args} $@
+the_tool {args} $@
 """
 
 def _update_deb_packages_create_script_impl(ctx):
+    # symlink required tools to work directory
     bin_buildifier = ctx.actions.declare_file('buildifier')
     ctx.actions.symlink(
         output = bin_buildifier,
@@ -39,17 +43,16 @@ def _update_deb_packages_create_script_impl(ctx):
         is_executable=True,
     )
 
-    bin_update_deb_packages = ctx.actions.declare_file('update_deb_packages')
+    bin_the_tool = ctx.actions.declare_file('the_tool')
     ctx.actions.symlink(
-        output = bin_update_deb_packages,
+        output = bin_the_tool,
         target_file=ctx.attr._update_deb_packages.files.to_list()[0],
         is_executable=True,
     )
 
-    relative_bin_dir = bin_buildozer.short_path.split('/')[0]
-
+    # create entrypoint script
     script_content = SCRIPT_CONTENT.format(
-        tool_path=relative_bin_dir,
+        the_tool_path=bin_the_tool.short_path,
         args=" ".join(ctx.attr.args)
     )
     script_file = ctx.actions.declare_file(
@@ -60,10 +63,11 @@ def _update_deb_packages_create_script_impl(ctx):
         script_content,
         is_executable=True
     )
+
     return struct(
         files = depset([script_file]),
         runfiles = ctx.runfiles([
-            bin_update_deb_packages,
+            bin_the_tool,
             bin_buildozer,
             bin_buildifier,
         ])
