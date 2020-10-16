@@ -20,3 +20,13 @@ def deb_packages_setup():
             "https://github.com/bazelbuild/buildtools/releases/download/3.5.0/buildifier",
         ],
     )
+
+    http_file(
+        name = "update_deb_packages_linux",
+        downloaded_file_path = "update_deb_packages",
+        executable = True,
+        sha256 = "304e70a41963e0e03580e89ebd9a0e7a799b570f1dd5ca21d52c602f85118337",
+        urls = [
+            "https://github.com/aisbaa/deb_packages/releases/download/0.1/update_deb_packages-v0.1.2",
+        ],
+    )

@@ -15,12 +15,13 @@
 load("@aisbaa_rules_deb_packages//deb_packages/private:development_defs.bzl", "get_update_deb_packages")
 
 SCRIPT_CONTENT = """
+set -x
 BASE=$(pwd)
 WORKSPACE=$(dirname $(readlink WORKSPACE))
 export PATH="$BASE/{tool_path}:$PATH"
 
 cd "$WORKSPACE"
-{update_deb_packages} {args} $@
+update_deb_packages {args} $@
 """
 
 def _update_deb_packages_create_script_impl(ctx):
@@ -38,10 +39,16 @@ def _update_deb_packages_create_script_impl(ctx):
         is_executable=True,
     )
 
+    bin_update_deb_packages = ctx.actions.declare_file('update_deb_packages')
+    ctx.actions.symlink(
+        output = bin_update_deb_packages,
+        target_file=ctx.attr._update_deb_packages.files.to_list()[0],
+        is_executable=True,
+    )
+
     relative_bin_dir = bin_buildozer.short_path.split('/')[0]
 
     script_content = SCRIPT_CONTENT.format(
-        update_deb_packages=ctx.file._update_deb_packages.path,
         tool_path=relative_bin_dir,
         args=" ".join(ctx.attr.args)
     )
@@ -55,9 +62,8 @@ def _update_deb_packages_create_script_impl(ctx):
     )
     return struct(
         files = depset([script_file]),
-        # bin_files = depset([bin_buildozer, bin_buildifier,]),
         runfiles = ctx.runfiles([
-            ctx.file._update_deb_packages,
+            bin_update_deb_packages,
             bin_buildozer,
             bin_buildifier,
         ])
@@ -69,7 +75,7 @@ _update_deb_packages_create_script = rule(
         "args": attr.string_list(),
         "pgp_keys": attr.label_list(),
         "_update_deb_packages": attr.label(
-            default = get_update_deb_packages(),
+            default = Label("@update_deb_packages_linux//file"),
             allow_single_file = True,
             executable = True,
             cfg = "host",
