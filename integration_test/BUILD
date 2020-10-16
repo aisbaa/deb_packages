@@ -1,5 +1,5 @@
 # updates deb_packages rules
-load("@deb_packages//:update_deb_packages.bzl", "update_deb_packages")
+load("@aisbaa_rules_deb_packages//deb_packages:defs.bzl", "update_deb_packages")
 
 update_deb_packages(
     name = "update_deb_packages",

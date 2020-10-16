@@ -59,16 +59,16 @@ load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 bazel_skylib_workspace()
 
 http_archive(
-    name = "deb_packages",
     sha256 = "RELEASE_ARCHIVE_CHECKSUM",
+    name = "aisbaa_rules_deb_packages",
     urls = [
         # replaces this with url from github in your project
         "file://RELEASE_ARCHIVE_LOCATION",
     ],
 )
 
-load("@deb_packages//deb_packages:defs.bzl", "deb_repository")
-load("@deb_packages//deb_packages:deps.bzl", "deb_packages_setup")
+load("@aisbaa_rules_deb_packages//deb_packages:defs.bzl", "deb_repository")
+load("@aisbaa_rules_deb_packages//deb_packages:deps.bzl", "deb_packages_setup")
 deb_packages_setup()
 
 # dowload gpg key for repo and
