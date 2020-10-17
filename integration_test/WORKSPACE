@@ -58,28 +58,18 @@ load("@bazel_skylib//:workspace.bzl", "bazel_skylib_workspace")
 
 bazel_skylib_workspace()
 
-http_file(
-    name = "bazelbuild_buildtools_buildifier",
-    sha256 = "9c854992fc6c423efe8622c3c326a66e73268995ecbe8f685129063206a18043",
-    urls = ["https://github.com/bazelbuild/buildtools/releases/download/3.5.0/buildifier"],
-)
-
-http_file(
-    name = "bazelbuild_buildtools_buildozer",
-    sha256 = "9c854992fc6c423efe8622c3c326a66e73268995ecbe8f685129063206a18043",
-    urls = ["https://github.com/bazelbuild/buildtools/releases/download/3.5.0/buildozer"],
-)
-
 http_archive(
-    name = "deb_packages",
     sha256 = "RELEASE_ARCHIVE_CHECKSUM",
+    name = "aisbaa_rules_deb_packages",
     urls = [
         # replaces this with url from github in your project
         "file://RELEASE_ARCHIVE_LOCATION",
     ],
 )
 
-load("@deb_packages//:deb_packages.bzl", "deb_packages")
+load("@aisbaa_rules_deb_packages//deb_packages:defs.bzl", "deb_repository")
+load("@aisbaa_rules_deb_packages//deb_packages:deps.bzl", "deb_packages_setup")
+deb_packages_setup()
 
 # dowload gpg key for repo and
 http_file(
@@ -88,7 +78,8 @@ http_file(
     urls = ["https://ftp-master.debian.org/keys/archive-key-10.asc"],
 )
 
-deb_packages(
+
+deb_repository(
     name = "debian_buster_amd64_pkgs",
     arch = "amd64",
     distro = "buster",

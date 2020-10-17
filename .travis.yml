@@ -13,14 +13,14 @@ before_install:
   - sudo dpkg -i bazel_3.6.0-linux-x86_64.deb
 
 script:
-  - bazel build :release
+  - bazel build //release:package
   - |
-    RELEASE_ARCHIVE_LOCATION=$(realpath bazel-bin/release.tar.gz)
-    RELEASE_ARCHIVE_CHECKSUM=$(sha256sum "${RELEASE_ARCHIVE_PATH}")
+    RELEASE_ARCHIVE_LOCATION=$(realpath bazel-bin/release/package.tar.gz)
+    RELEASE_ARCHIVE_CHECKSUM=$(sha256sum "${RELEASE_ARCHIVE_LOCATION}" | cut -d' ' -f1)
     sed -i "s:RELEASE_ARCHIVE_LOCATION:$RELEASE_ARCHIVE_LOCATION:" integration_test/WORKSPACE
     sed -i "s:RELEASE_ARCHIVE_CHECKSUM:$RELEASE_ARCHIVE_CHECKSUM:" integration_test/WORKSPACE
   - cd integration_test
   - bazel run :update_deb_packages
   - grep zsh WORKSPACE
   - bazel run //image:zsh
-  - docker run -it --rm bazel/image:zsh -- zsh -c 'echo $SHELL'
+  - docker run -it --rm bazel/image:zsh zsh -c 'echo $SHELL'
