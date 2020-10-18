@@ -1,6 +1,14 @@
 # generate release tarball
 load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 
+filegroup(
+    name = "release_files",
+    srcs = [
+        ":package",
+        "//deb_packages/tools/update_deb_packages/src:update_deb_packages",
+    ]
+)
+
 pkg_tar(
     name = "package_private",
     extension = "tar.gz",

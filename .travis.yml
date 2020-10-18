@@ -19,7 +19,7 @@ script:
   - docker run -it --rm bazel/test/image:zsh zsh --version
 
   # integration test
-  - bazel build //release:package
+  - bazel build //release:release_files
   - |
     RELEASE_ARCHIVE_LOCATION=$(realpath bazel-bin/release/package.tar.gz)
     RELEASE_ARCHIVE_CHECKSUM=$(sha256sum "${RELEASE_ARCHIVE_LOCATION}" | cut -d' ' -f1)
