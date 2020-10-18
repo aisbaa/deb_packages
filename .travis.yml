@@ -14,7 +14,7 @@ before_install:
 
 script:
   # test
-  - bazel run //test:update_deb_packages
+  - bazel run //test:update_deb_packages_for_test_images
   - bazel run //test/image:zsh
   - docker run -it --rm bazel/image:zsh zsh --version
 

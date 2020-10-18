@@ -2,7 +2,6 @@ workspace(name = "aisbaa_rules_deb_packages")
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
 
-
 #
 # go_rules --------------------------------------------------------------------
 #
@@ -110,8 +109,8 @@ container_pull(
 
 load("@aisbaa_rules_deb_packages//deb_packages:deps.bzl", "deb_packages_setup")
 load("@aisbaa_rules_deb_packages//deb_packages:defs.bzl", "deb_repository")
-deb_packages_setup()
 
+deb_packages_setup()
 
 # dowload gpg key for repo and
 http_file(
