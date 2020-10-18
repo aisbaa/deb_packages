@@ -27,6 +27,6 @@ def deb_packages_setup():
         executable = True,
         sha256 = "304e70a41963e0e03580e89ebd9a0e7a799b570f1dd5ca21d52c602f85118337",
         urls = [
-            "https://github.com/aisbaa/deb_packages/releases/download/0.1.3/update_deb_packages",
+            "https://github.com/aisbaa/deb_packages/releases/download/v0.1.3-beta.1/deb_packages-v0.1.3.tar.gz"
         ],
     )
