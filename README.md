@@ -17,9 +17,9 @@ and container_layer from
 
    http_archive(
        name = "aisbaa_rules_deb_packages",
+       sha256 = "63ba3f0e0467b178ef42147017de0fce64532b308bdc72246fe2b0e543de6cdf",
        urls = [
-           # replaces this with url from github in your project
-           "file://RELEASE_ARCHIVE_LOCATION",
+           "https://github.com/aisbaa/deb_packages/releases/dowload/v0.1.3-beta.1/deb_packages-v0.1.3.tar.gz",
        ],
    )
 
