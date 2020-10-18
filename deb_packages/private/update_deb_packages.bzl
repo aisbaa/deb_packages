@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@aisbaa_rules_deb_packages//deb_packages/private:development_defs.bzl", "get_update_deb_packages")
-
 SCRIPT_CONTENT = """
 set -x
 
