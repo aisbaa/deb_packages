@@ -16,7 +16,7 @@ script:
   # test
   - bazel run //test:update_deb_packages_for_test_images
   - bazel run //test/image:zsh
-  - docker run -it --rm bazel/image:zsh zsh --version
+  - docker run -it --rm bazel/test/image:zsh zsh --version
 
   # integration test
   - bazel build //release:package
