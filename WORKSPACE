@@ -49,6 +49,49 @@ go_repository(
 #    importpath = "github.com/bazelbuild/buildtools",
 #)
 
+#
+# docker rules ---------------------------------------------------------------
+#
+
+http_archive(
+    name = "io_bazel_rules_docker",
+    sha256 = "4521794f0fba2e20f3bf15846ab5e01d5332e587e9ce81629c7f96c793bb7036",
+    strip_prefix = "rules_docker-0.14.4",
+    urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.14.4/rules_docker-v0.14.4.tar.gz"],
+)
+
+load(
+    "@io_bazel_rules_docker//repositories:repositories.bzl",
+    container_repositories = "repositories",
+)
+
+container_repositories()
+
+load("@io_bazel_rules_docker//repositories:deps.bzl", container_deps = "deps")
+
+container_deps()
+
+load("@io_bazel_rules_docker//repositories:pip_repositories.bzl", "pip_deps")
+
+pip_deps()
+
+load(
+    "@io_bazel_rules_docker//container:container.bzl",
+    "container_pull",
+)
+
+container_pull(
+    name = "debian10",
+    registry = "index.docker.io",
+    repository = "debian",
+    # digest = "sha256-b838471e0d4a19fd67dd6adb5961315d9b3e8a205e8f3970d7a75cd746001c5b",
+    tag = "buster-20200908",
+)
+
+#
+# deb_packages rules ----------------------------------------------------------
+#
+
 load("@aisbaa_rules_deb_packages//deb_packages:deps.bzl", "deb_packages_setup")
 load("@aisbaa_rules_deb_packages//deb_packages:defs.bzl", "deb_repository")
 deb_packages_setup()
