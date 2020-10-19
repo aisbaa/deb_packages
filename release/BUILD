@@ -5,7 +5,8 @@ filegroup(
     name = "release_files",
     srcs = [
         ":package",
-        "//deb_packages/tools/update_deb_packages/src:update_deb_packages",
+        "//deb_packages/tools/update_deb_packages/src:update_deb_packages-darwin",
+        "//deb_packages/tools/update_deb_packages/src:update_deb_packages-linux",
     ]
 )
 
