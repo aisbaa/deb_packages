@@ -33,6 +33,15 @@ var FORCE_PACKAGE_IDENT = `{
 }
 `
 
+func logAndExec(name string, arg ...string) *exec.Cmd {
+	log.Print(
+		"exec: "+name+" '",
+		strings.Join(arg[:], "' '"),
+		"'",
+	)
+	return exec.Command(name, arg...)
+}
+
 func appendUniq(slice []string, v string) []string {
 	for _, x := range slice {
 		if x == v {
@@ -234,8 +243,7 @@ func getPackages(arch string, distroType string, distro string, mirrors []string
 
 func getStringField(fieldName string, fileName string, ruleName string, workspaceContents []byte) string {
 	// buildozer 'print FIELDNAME_GOES_HERE' FILENAME_GOES_HERE:RULENAME_GOES_HERE <WORKSPACE
-	log.Print("buildozer print "+fieldName, fileName+":"+ruleName)
-	cmd := exec.Command("buildozer", "print "+fieldName, fileName+":"+ruleName)
+	cmd := logAndExec("buildozer", "print "+fieldName, fileName+":"+ruleName)
 	wsreader := bytes.NewReader(workspaceContents)
 	if fileName == "-" {
 		// see edit.stdinPackageName why this is a "-"
@@ -269,8 +277,7 @@ func getStringField(fieldName string, fileName string, ruleName string, workspac
 func getListField(fieldName string, fileName string, ruleName string, workspaceContents []byte) []string {
 	// buildozer 'print FIELDNAME_GOES_HERE' FILENAME_GOES_HERE:RULENAME_GOES_HERE <WORKSPACE
 	// TODO: better failure message if buildozer is not in PATH
-	log.Print("buildozer print "+fieldName, fileName+":"+ruleName)
-	cmd := exec.Command("buildozer", "print "+fieldName, fileName+":"+ruleName)
+	cmd := logAndExec("buildozer", "print "+fieldName, fileName+":"+ruleName)
 	wsreader := bytes.NewReader(workspaceContents)
 	if fileName == "-" {
 		// see edit.stdinPackageName why this is a "-"
@@ -323,8 +330,7 @@ func getListField(fieldName string, fileName string, ruleName string, workspaceC
 
 func getMapField(fieldName string, fileName string, ruleName string, workspaceContents []byte) map[string]string {
 	// buildozer 'print FIELDNAME_GOES_HERE' FILENAME_GOES_HERE:RULENAME_GOES_HERE <WORKSPACE
-	log.Print("buildozer print "+fieldName, fileName+":"+ruleName)
-	cmd := exec.Command("buildozer", "print "+fieldName, fileName+":"+ruleName)
+	cmd := logAndExec("buildozer", "print "+fieldName, fileName+":"+ruleName)
 	wsreader := bytes.NewReader(workspaceContents)
 	if fileName == "-" {
 		// see edit.stdinPackageName why this is a "-"
@@ -369,8 +375,7 @@ func getMapField(fieldName string, fileName string, ruleName string, workspaceCo
 
 func getAllLabels(labelName string, fileName string, ruleName string, workspaceContents []byte) map[string][]string {
 	// buildozer 'print label LABELNAME_GOES_HERE' FILENAME_GOES_HERE:RULENAME_GOES_HERE <WORKSPACE
-	log.Print("buildozer print label "+labelName, fileName+":"+ruleName)
-	cmd := exec.Command("buildozer", "print label "+labelName, fileName+":"+ruleName)
+	cmd := logAndExec("buildozer", "print label "+labelName, fileName+":"+ruleName)
 	wsreader := bytes.NewReader(workspaceContents)
 	if fileName == "-" {
 		// see edit.stdinPackageName why this is a "-"
@@ -423,11 +428,9 @@ func setStringField(fieldName string, fieldContents string, fileName string, rul
 		if err := ioutil.WriteFile(tableFile, []byte(*forceTable), 0666); err != nil {
 			logFatalErr(err)
 		}
-		log.Print("buildozer -add_tables="+tableFile, "set "+fieldName+" "+fieldContents, fileName+":"+ruleName)
-		cmd = exec.Command("buildozer", "-add_tables="+tableFile, "set "+fieldName+" "+fieldContents, fileName+":"+ruleName)
+		cmd = logAndExec("buildozer", "-add_tables="+tableFile, "set "+fieldName+" "+fieldContents, fileName+":"+ruleName)
 	} else {
-		log.Print("buildozer set "+fieldName+" "+fieldContents, fileName+":"+ruleName)
-		cmd = exec.Command("buildozer", "set "+fieldName+" "+fieldContents, fileName+":"+ruleName)
+		cmd = logAndExec("buildozer", "set "+fieldName+" "+fieldContents, fileName+":"+ruleName)
 	}
 	wsreader := bytes.NewReader(workspaceContents)
 	if fileName == "-" {
@@ -560,8 +563,9 @@ func updateWorkspace(workspaceContents []byte) string {
 	cleanedRules := make([]string, len(rules))
 	copy(cleanedRules, rules)
 
+	log.Print("udating workspace rules:")
 	for i, rule := range rules {
-		log.Print("rule: ", i, rule, "END")
+		log.Print("rule: ", i, " '", rule, "'")
 		tags := getListField("tags", "-", rule, workspaceContents)
 		for _, tag := range tags {
 			// drop rules with the "manual_update" tag
