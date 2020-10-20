@@ -15,6 +15,7 @@ pkg_tar(
     extension = "tar.gz",
     package_dir = "deb_packages/private",
     srcs = [
+        "development_defs.bzl",
         "//deb_packages/private:std_package",
     ]
 )

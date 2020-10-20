@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@aisbaa_rules_deb_packages//deb_packages/private:development_defs.bzl", "get_update_deb_packages")
+load("@aisbaa_rules_deb_packages//deb_packages/private:development_defs.bzl", "get_update_deb_package")
 
 SCRIPT_CONTENT = """
 set -x
@@ -79,7 +79,7 @@ _update_deb_packages_create_script = rule(
         "args": attr.string_list(),
         "pgp_keys": attr.label_list(),
         "_update_deb_packages": attr.label(
-            default = Label("@update_deb_packages_linux//file"),
+            default = get_update_deb_package(),
             allow_single_file = True,
             executable = True,
             cfg = "host",
