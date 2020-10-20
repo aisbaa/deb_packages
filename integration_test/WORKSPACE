@@ -47,6 +47,7 @@ container_pull(
 
 http_archive(
     name = "aisbaa_rules_deb_packages",
+    sha256 = "RELEASE_ARCHIVE_CHECKSUM",
     urls = [
         # replaces this with url from github in your project
         "file://RELEASE_ARCHIVE_LOCATION",
