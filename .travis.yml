@@ -22,7 +22,7 @@ script:
 
   # integration test
   - bazel build //release:release_files
-  - integration_test/patch_workspace.sh
+  - bash integration_test/patch_workspace.sh
   - cd integration_test
 
   - bazel run :update_deb_packages
