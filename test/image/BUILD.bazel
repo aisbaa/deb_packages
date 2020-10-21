@@ -8,4 +8,8 @@ container_image(
         debian_buster_amd64_pkgs["zsh-common"],
         debian_buster_amd64_pkgs["zsh"],
     ],
+    tags = [
+        "deb_packages_auto",
+        "zsh_image",
+    ],
 )

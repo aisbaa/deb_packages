@@ -17,6 +17,7 @@ import (
 	"path"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -40,6 +41,39 @@ func logAndExec(name string, arg ...string) *exec.Cmd {
 		"'",
 	)
 	return exec.Command(name, arg...)
+}
+
+func logAndExec2(stdin []byte, name string, args ...string) string {
+	cmd := logAndExec(name, args...)
+
+	if stdin != nil {
+		stdin_reader := bytes.NewReader(stdin)
+		cmd.Stdin = stdin_reader
+	}
+
+	var out bytes.Buffer
+	cmd.Stdout = &out
+
+	err := cmd.Run()
+	if err != nil {
+		exiterr, ok := err.(*exec.ExitError)
+		if ok == true {
+			// not every platform might have exit codes
+			// see https://groups.google.com/forum/#!topic/golang-nuts/MI4TyIkQqqg
+			exitCode := exiterr.Sys().(interface {
+				ExitStatus() int
+			}).ExitStatus()
+			// Return code 3 is the intended behaviour for buildozer when using "print" commands
+			if exitCode != 3 {
+				log.Print("Error while excuting command: ", cmd)
+				logFatalErr(err)
+			}
+		} else {
+			logFatalErr(err)
+		}
+	}
+
+	return out.String()
 }
 
 func appendUniq(slice []string, v string) []string {
@@ -373,6 +407,7 @@ func getMapField(fieldName string, fileName string, ruleName string, workspaceCo
 	return m
 }
 
+// TODO(Aistis): deprecate this
 func getAllLabels(labelName string, fileName string, ruleName string, workspaceContents []byte) map[string][]string {
 	// buildozer 'print label LABELNAME_GOES_HERE' FILENAME_GOES_HERE:RULENAME_GOES_HERE <WORKSPACE
 	cmd := logAndExec("buildozer", "print label "+labelName, fileName+":"+ruleName)
@@ -403,14 +438,21 @@ func getAllLabels(labelName string, fileName string, ruleName string, workspaceC
 	}
 
 	// output is quite messed up... best indication for useful lines is that a line ending in "," contains stuff we look for.
+	return buildozerDebsOutToMap(out.String())
+}
+
+func buildozerDebsOutToMap(out string) map[string][]string {
 	pkgs := make(map[string][]string)
 
-	for _, line := range strings.Split(out.String(), "\n") {
+	for _, line := range strings.Split(out, "\n") {
 		if strings.HasSuffix(line, ",") {
 			name := strings.TrimSpace(strings.Split(line, "[")[0])
-			pkgs[name] = appendUniq(pkgs[name], strings.Trim(strings.TrimSpace(strings.Split(line, "[")[1]), "\",]"))
+			pkgs[name] = appendUniq(
+				pkgs[name],
+				strings.Trim(strings.TrimSpace(strings.Split(line, "[")[1]), "\",]"))
 		}
 	}
+
 	return pkgs
 }
 
@@ -569,7 +611,7 @@ func updateWorkspace(workspaceContents []byte) string {
 		tags := getListField("tags", "-", rule, workspaceContents)
 		for _, tag := range tags {
 			// drop rules with the "manual_update" tag
-			if tag == "manual_update" {
+			if tag == "deb_packages_manual_update" {
 				cleanedRules = append(cleanedRules[:i], cleanedRules[i+1:]...)
 			}
 		}
@@ -586,8 +628,52 @@ func addNewPackagesToWorkspace(workspaceContents []byte) string {
 	// TODO: add more rule types here if necessary
 	// e.g. cacerts()
 	allDebs := make(map[string][]string)
+
+	// contains rules that should be managed by deb_packages bazel extension
+	managedRules := make([]string, 0)
+	shouldIncludeRuleRE := regexp.MustCompile(`/(/\w+)+:\w+ \[.*deb_packages_auto.*\]`)
+
 	for _, rule_type := range []string{"container_layer", "container_image"} {
-		tmp := getAllLabels("debs", "//...", "%"+rule_type, workspaceContents)
+		// result_txt be in this format:
+		// //image:zsh (missing)
+		// //test/image:zsh [deb_packages_auto zsh_image]
+		// //test/image:bash [deb_packages_auto bash_image]
+
+		// buildozer 'print label tags' '//...:%container_image' 2>/dev/null
+		result_txt := logAndExec2(
+			nil,
+			"buildozer",
+			"print label tags",
+			"//...:%"+rule_type,
+		)
+
+		if result_txt == "" {
+			// no rules matched
+			continue
+		}
+
+		for _, line := range strings.Split(result_txt, "\n") {
+			if !shouldIncludeRuleRE.MatchString(line) {
+				continue
+			}
+
+			rule := strings.Split(line, " ")[0]
+			managedRules = append(managedRules, rule)
+		}
+	}
+
+	// TODO(Aistis): move to new function this code
+	// extract deb packages from container_layer and container_image rules
+	for _, rule := range managedRules {
+		result_out := logAndExec2(
+			workspaceContents,
+			"buildozer",
+			"print label debs",
+			rule,
+		)
+
+		tmp := buildozerDebsOutToMap(result_out)
+
 		for k, _ := range tmp {
 			if _, ok := allDebs[k]; !ok {
 				allDebs[k] = make([]string, 0)
@@ -598,11 +684,12 @@ func addNewPackagesToWorkspace(workspaceContents []byte) string {
 		}
 	}
 
+	// TODO(Aistis): move to new function this code
 	for rule := range allDebs {
 		tags := getListField("tags", "-", rule, workspaceContents)
 		for _, tag := range tags {
 			// drop rules with the "manual_update" tag
-			if tag == "manual_update" {
+			if tag == "deb_packages_manual_update" {
 				delete(allDebs, rule)
 			}
 		}

@@ -66,6 +66,9 @@ and container_layer from
            debian_buster_amd64_pkgs["zsh-common"],
            debian_buster_amd64_pkgs["zsh"],
        ],
+       tags = [
+           "managed_by_deb_packages",
+       ]
    )
    ```
 
