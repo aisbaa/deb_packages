@@ -19,7 +19,7 @@ and container_layer from
        name = "aisbaa_rules_deb_packages",
        sha256 = "865d8544a3ac5779cc70cac407ed1b3b7a11e67280d5e5258baf1b8da04fe4e0",
        urls = [
-           "https://github.com/aisbaa/deb_packages/releases/dowload/v0.2-beta/deb_packages.tar.gz",
+           "https://github.com/aisbaa/deb_packages/releases/download/v0.2-beta/deb_packages.tar.gz",
        ],
    )
 
