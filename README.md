@@ -17,9 +17,9 @@ and container_layer from
 
    http_archive(
        name = "aisbaa_rules_deb_packages",
-       sha256 = "b772911c79de91a497b3f53b575a1bc239ccdfe57ce67a173268c508cfd96a21",
+       sha256 = "865d8544a3ac5779cc70cac407ed1b3b7a11e67280d5e5258baf1b8da04fe4e0",
        urls = [
-           "https://github.com/aisbaa/deb_packages/releases/dowload/v0.1.3-beta.2/deb_packages-v0.1.5.tar.gz",
+           "https://github.com/aisbaa/deb_packages/releases/dowload/v0.2-beta/deb_packages.tar.gz",
        ],
    )
 
@@ -67,7 +67,7 @@ and container_layer from
            debian_buster_amd64_pkgs["zsh"],
        ],
        tags = [
-           "managed_by_deb_packages",
+           "deb_packages_auto",
        ]
    )
    ```
