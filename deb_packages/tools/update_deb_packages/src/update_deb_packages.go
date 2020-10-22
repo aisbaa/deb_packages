@@ -581,7 +581,7 @@ func updateWorkspaceRule(workspaceContents []byte, rule string) string {
 			}
 		}
 		if done == false {
-			log.Fatalf("Package %s isn't available in %s (rule: %s)", pack, distro, rule)
+			log.Fatalf("Package '%s' isn't available in '%s' (rule: %s)", pack, distro, rule)
 		}
 	}
 
