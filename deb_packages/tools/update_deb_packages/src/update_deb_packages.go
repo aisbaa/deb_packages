@@ -631,7 +631,9 @@ func addNewPackagesToWorkspace(workspaceContents []byte) string {
 
 	// contains rules that should be managed by deb_packages bazel extension
 	managedRules := make([]string, 0)
-	shouldIncludeRuleRE := regexp.MustCompile(`/(/\w+)+:\w+ \[.*deb_packages_auto.*\]`)
+	// should match rules like this:
+	// //container/debian-pkgs [deb_packages_auto]
+	shouldIncludeRuleRE := regexp.MustCompile(`.* \[.*deb_packages_auto.*\]`)
 
 	for _, rule_type := range []string{"container_layer", "container_image"} {
 		// result_txt be in this format:
