@@ -7,6 +7,7 @@ container_image(
     debs = [
         debian_buster_amd64_pkgs["zsh-common"],
         debian_buster_amd64_pkgs["zsh"],
+        debian_buster_amd64_pkgs["libargon2-1"],
     ],
     tags = [
         "deb_packages_auto",

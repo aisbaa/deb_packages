@@ -552,7 +552,7 @@ func updateWorkspaceRule(workspaceContents []byte, rule string) string {
 			packname = packlist[0]
 			packversion = "latest"
 			var err error
-			targetVersion, err = version.NewVersion("0")
+			targetVersion, err = version.NewVersion("0~0-0.0")
 			logFatalErr(err)
 		}
 

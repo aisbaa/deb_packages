@@ -128,10 +128,12 @@ deb_repository(
         "http://deb.debian.org/debian",
     ],
     packages = {
+        "libargon2-1": "pool/main/a/argon2/libargon2-1_0~20171227-0.2_amd64.deb",
         "zsh": "pool/main/z/zsh/zsh_5.7.1-1_amd64.deb",
         "zsh-common": "pool/main/z/zsh/zsh-common_5.7.1-1_all.deb",
     },
     packages_sha256 = {
+        "libargon2-1": "0d2be32c122d26bbd9b604fbe0072265e4978e07b0e1b7149ba364ba3cc5a302",
         "zsh": "e400e604e452b9d4709889ceec035c3ab26c2e14592fa11f2954a613f911977a",
         "zsh-common": "e6f57ba10d4776cc8895f08ea800a3622c61126f89e92b2a3f2998d4b1e16b9e",
     },
