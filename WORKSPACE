@@ -39,30 +39,23 @@ load("@bazel_gazelle//:deps.bzl", "go_repository")
 # "golang.org/x/crypto/openpgp"
 go_repository(
     name = "org_golang_x_crypto",
-    commit = "d585fd2cc9195196078f516b69daff6744ef5e84",
+    commit = "9e8e0b390897c84cad53ebe9ed2d1d331a5394d9",
     importpath = "golang.org/x/crypto",
 )
 
 # "github.com/knqyf263/go-deb-version"
 go_repository(
     name = "com_github_knqyf263_go_deb_version",
-    commit = "9865fe14d09b1c729188ac810466dde90f897ee3",
+    commit = "09fca494f03d83586ddc06a1cb3fa992626e4f79",
     importpath = "github.com/knqyf263/go-deb-version",
 )
 
 # "github.com/stapelberg/godebiancontrol"
 go_repository(
     name = "com_github_stapelberg_godebiancontrol",
-    commit = "4376b22fb2c4dfda546c972f686310af907819b2",
+    commit = "8c93e189186a10b222a6c6f55d9a89e36d346f42",
     importpath = "github.com/stapelberg/godebiancontrol",
 )
-
-# "github.com/bazelbuild/buildtools"
-#go_repository(
-#    name = "com_github_bazelbuild_buildtools",
-#    commit = "9c928655df93b94eeb3dc7f6bd040cee71c7dc59",
-#    importpath = "github.com/bazelbuild/buildtools",
-#)
 
 #
 # docker rules ---------------------------------------------------------------
