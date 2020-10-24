@@ -28,6 +28,6 @@ script:
   - docker run -it --rm bazel/test/image:zsh zsh --version
 
   # integration test
-  - make test_integration
+  - make test-integration
   - bazel run //image:zsh
   - docker run -it --rm bazel/image:zsh zsh --version
