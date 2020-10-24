@@ -14,13 +14,14 @@ before_install:
     sha256sum -c .travis/bazel_3.6.0-linux-x86_64.deb.sha256
     sudo dpkg -i bazel_3.6.0-linux-x86_64.deb
   # install buildozer
-  - >-
-    wget https://github.com/bazelbuild/buildtools/releases/download/3.5.0/buildozer
-    -O /usr/local/bin/buildozer
-    chmod +x /usr/local/bin/buildozer
+  - |
+    mkdir bin
+    wget https://github.com/bazelbuild/buildtools/releases/download/3.5.0/buildozer -O bin/buildozer
+    chmod +x bin/buildozer
 
 
 script:
+  - export PATH=`pwd`/bin:$PATH
   # test
   - make test
   - bazel run //test/image:zsh
