@@ -22,12 +22,5 @@ before_install:
 
 script:
   - export PATH=`pwd`/bin:$PATH
-  # test
   - make test
-  - bazel run //test/image:zsh
-  - docker run -it --rm bazel/test/image:zsh zsh --version
-
-  # integration test
   - make test-integration
-  - bazel run //image:zsh
-  - docker run -it --rm bazel/image:zsh zsh --version
