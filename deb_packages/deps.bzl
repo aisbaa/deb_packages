@@ -21,8 +21,8 @@ def deb_packages_setup(the_tool_path=None, the_tool_sha=None):
         ],
     )
 
-    the_tool_path = the_tool_path or "https://github.com/aisbaa/deb_packages/releases/download/v0.2-beta/update_deb_packages-linux_amd64"
-    the_tool_sha = the_tool_sha or "b97d19ae33214f6bdc71076d596039be1b6de5f3d5130f4aaa18fa762178dbce"
+    the_tool_path = the_tool_path or "https://github.com/aisbaa/deb_packages/releases/download/v0.2-beta.1/update_deb_packages-linux_amd64"
+    the_tool_sha = the_tool_sha or "694b2bf72bbddae34db1c587662725cc97da5d54b1bc297ee0c43b088bb1698d"
 
     http_file(
         name = "update_deb_packages_linux",
