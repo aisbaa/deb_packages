@@ -534,9 +534,22 @@ func updateWorkspaceRule(workspaceContents []byte, rule string) string {
 	}
 
 	wd, err := os.Getwd()
-	projectName := path.Base(wd)
-	pgpKeyname := path.Join("bazel-"+projectName, "external", pgpKeyRuleName, "file", "downloaded")
 
+	pgpKeyname := ""
+	if strings.HasPrefix(pgpKeyRuleName, "file://") {
+		log.Print("use local pgp key")
+		pgpKeyname = strings.TrimPrefix(pgpKeyRuleName, "file://")
+	} else if pgpKeyRuleName != "" {
+		log.Print("using remote pgp key")
+		projectName := path.Base(wd)
+		pgpKeyname = path.Join(
+			"bazel-"+projectName,
+			"external",
+			pgpKeyRuleName,
+			"file",
+			"downloaded",
+		)
+	}
 	allPackages := getPackages(arch, distroType, distro, mirrors, components, pgpKeyname)
 
 	newPackages := make(map[string]string)
