@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -275,7 +276,7 @@ func getPackages(arch string, distroType string, distro string, mirrors []string
 	return parsed
 }
 
-func getStringField(fieldName string, fileName string, ruleName string, workspaceContents []byte) string {
+func getStringField(fieldName string, fileName string, ruleName string, workspaceContents []byte) (string, error) {
 	// buildozer 'print FIELDNAME_GOES_HERE' FILENAME_GOES_HERE:RULENAME_GOES_HERE <WORKSPACE
 	cmd := logAndExec("buildozer", "print "+fieldName, fileName+":"+ruleName)
 	wsreader := bytes.NewReader(workspaceContents)
@@ -305,7 +306,11 @@ func getStringField(fieldName string, fileName string, ruleName string, workspac
 	}
 
 	// remove trailing newline
-	return strings.TrimSpace(out.String())
+	res := strings.TrimSpace(out.String())
+	if res == "(missing)" {
+		return "", errors.New("Missing field")
+	}
+	return res, nil
 }
 
 func getListField(fieldName string, fileName string, ruleName string, workspaceContents []byte) []string {
@@ -504,14 +509,14 @@ func setStringField(fieldName string, fieldContents string, fileName string, rul
 }
 
 func updateWorkspaceRule(workspaceContents []byte, rule string) string {
-	arch := getStringField("arch", "-", rule, workspaceContents)
-	distroType := getStringField("distro_type", "-", rule, workspaceContents)
-	distro := getStringField("distro", "-", rule, workspaceContents)
+	arch, err := getStringField("arch", "-", rule, workspaceContents)
+	distroType, err := getStringField("distro_type", "-", rule, workspaceContents)
+	distro, err := getStringField("distro", "-", rule, workspaceContents)
 	mirrors := getListField("mirrors", "-", rule, workspaceContents)
 	components := getListField("components", "-", rule, workspaceContents)
 	packages := getMapField("packages", "-", rule, workspaceContents)
 	packagesSha256 := getMapField("packages_sha256", "-", rule, workspaceContents)
-	pgpKeyRuleName := getStringField("pgp_key", "-", rule, workspaceContents)
+	pgpKeyRuleName, err := getStringField("pgp_key", "-", rule, workspaceContents)
 
 	packageNames := make([]string, 0, len(packages))
 	for p := range packages {
