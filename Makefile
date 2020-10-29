@@ -5,7 +5,9 @@ all: clean test test-integration
 test:
 	$(bazel) run //test:update_deb_packages
 	$(bazel) run //test/image:zsh
+	$(bazel) run //test/image:bash
 	docker run -it --rm bazel/test/image:zsh zsh --version
+	docker run -it --rm bazel/test/image:bash bash --version
 .PHONY: test
 
 test-integration:
