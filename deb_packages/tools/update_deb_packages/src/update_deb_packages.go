@@ -94,7 +94,7 @@ func logFatalErr(e error) {
 
 // https://stackoverflow.com/a/33853856/5441396
 func downloadFile(filepath string, url string) (err error) {
-
+	log.Print("downloading: ", url)
 	// Create the file
 	out, err := os.Create(filepath)
 	if err != nil {
@@ -133,7 +133,7 @@ func getFileFromURLList(filepath string, filename string, urls []string) {
 			log.Print(err)
 		} else {
 			success = true
-			// log.Printf("Sucessfully fetched %s\n", parsed.String())
+			log.Printf("Sucessfully fetched %s\n", parsed.String())
 			break
 		}
 	}
