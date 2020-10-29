@@ -1,6 +1,9 @@
 load("@debian_buster_amd64_pkgs//debs:deb_packages.bzl", "debian_buster_amd64_pkgs")
 load("@debian_buster_amd64_pkgs_local_key//debs:deb_packages.bzl",
      "debian_buster_amd64_pkgs_local_key")
+load("@debian_buster_amd64_pkgs_no_key//debs:deb_packages.bzl",
+     "debian_buster_amd64_pkgs_no_key")
+
 load("@io_bazel_rules_docker//container:container.bzl", "container_image")
 
 container_image(
@@ -14,5 +17,42 @@ container_image(
     tags = [
         "deb_packages_auto",
         "zsh_image",
+    ],
+)
+
+
+container_image(
+    name = "bash",
+    base = "@debian10//image",
+    debs = [
+        debian_buster_amd64_pkgs_no_key["bash"],
+        debian_buster_amd64_pkgs_no_key["base-files"],
+        debian_buster_amd64_pkgs_no_key["debianutils"],
+        debian_buster_amd64_pkgs_no_key["dpkg"],
+        debian_buster_amd64_pkgs_no_key["gawk"],
+        debian_buster_amd64_pkgs_no_key["gcc-8-base"],
+        debian_buster_amd64_pkgs_no_key["install-info"],
+        debian_buster_amd64_pkgs_no_key["libacl1"],
+        debian_buster_amd64_pkgs_no_key["libattr1"],
+        debian_buster_amd64_pkgs_no_key["libbz2-1.0"],
+        debian_buster_amd64_pkgs_no_key["libc6"],
+        debian_buster_amd64_pkgs_no_key["libgcc1"],
+        debian_buster_amd64_pkgs_no_key["libgmp10"],
+        debian_buster_amd64_pkgs_no_key["liblzma5"],
+        debian_buster_amd64_pkgs_no_key["libmpfr6"],
+        debian_buster_amd64_pkgs_no_key["libpcre3"],
+        debian_buster_amd64_pkgs_no_key["libreadline7"],
+        debian_buster_amd64_pkgs_no_key["libselinux1"],
+        debian_buster_amd64_pkgs_no_key["libsigsegv2"],
+        debian_buster_amd64_pkgs_no_key["libtinfo6"],
+        debian_buster_amd64_pkgs_no_key["mawk"],
+        debian_buster_amd64_pkgs_no_key["original-awk"],
+        debian_buster_amd64_pkgs_no_key["readline-common"],
+        debian_buster_amd64_pkgs_no_key["tar"],
+        debian_buster_amd64_pkgs_no_key["zlib1g"],
+    ],
+    tags = [
+        "deb_packages_auto",
+        "bash_image",
     ],
 )

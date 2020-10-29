@@ -204,7 +204,12 @@ func getPackages(arch string, distroType string, distro string, mirrors []string
 	getFileFromMirror(releasegpgfile.Name(), "Release.gpg", distro, mirrors)
 
 	// check signature
-	checkPgpSignature(pgpKeyFile, releasefile.Name(), releasegpgfile.Name())
+	if pgpKeyFile != "" {
+		log.Print("checking pgp signature ...")
+		checkPgpSignature(pgpKeyFile, releasefile.Name(), releasegpgfile.Name())
+	} else {
+		log.Print("skip checking pgp signature ...")
+	}
 
 	os.Remove(releasegpgfile.Name())
 
