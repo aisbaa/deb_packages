@@ -3,7 +3,7 @@ bazel ?= bazel
 all: clean test test-integration
 
 test:
-	$(bazel) run //test:update_deb_packages_for_test_images
+	$(bazel) run //test:update_deb_packages
 	$(bazel) run //test/image:zsh
 	docker run -it --rm bazel/test/image:zsh zsh --version
 .PHONY: test
