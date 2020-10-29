@@ -47,6 +47,7 @@ container_pull(
 
 http_archive(
     name = "aisbaa_rules_deb_packages",
+    sha256 = "RELEASE_ARCHIVE_CHECKSUM",
     urls = [
         # replaces this with url from github in your project
         "file://RELEASE_ARCHIVE_LOCATION",
@@ -55,7 +56,11 @@ http_archive(
 
 load("@aisbaa_rules_deb_packages//deb_packages:defs.bzl", "deb_repository")
 load("@aisbaa_rules_deb_packages//deb_packages:deps.bzl", "deb_packages_setup")
-deb_packages_setup()
+
+deb_packages_setup(
+    the_tool_path="file://RELEASE_THE_TOOL_LOCATION",
+    the_tool_sha="RELEASE_THE_TOOL_CHECKSUM",
+)
 
 # dowload gpg key for repo and
 http_file(

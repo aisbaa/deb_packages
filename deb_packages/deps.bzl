@@ -1,6 +1,6 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
 
-def deb_packages_setup():
+def deb_packages_setup(the_tool_path=None, the_tool_sha=None):
     http_file(
         name = "buildozer_linux_bin",
         downloaded_file_path = "buildozer",
@@ -21,12 +21,13 @@ def deb_packages_setup():
         ],
     )
 
+    the_tool_path = the_tool_path or "https://github.com/aisbaa/deb_packages/releases/download/v0.2-beta.1/update_deb_packages-linux_amd64"
+    the_tool_sha = the_tool_sha or "694b2bf72bbddae34db1c587662725cc97da5d54b1bc297ee0c43b088bb1698d"
+
     http_file(
         name = "update_deb_packages_linux",
         downloaded_file_path = "update_deb_packages",
         executable = True,
-        sha256 = "304e70a41963e0e03580e89ebd9a0e7a799b570f1dd5ca21d52c602f85118337",
-        urls = [
-            "https://github.com/aisbaa/deb_packages/releases/download/0.1/update_deb_packages-v0.1.2",
-        ],
+        sha256 = the_tool_sha,
+        urls = [the_tool_path],
     )

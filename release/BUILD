@@ -5,7 +5,8 @@ filegroup(
     name = "release_files",
     srcs = [
         ":package",
-        "//deb_packages/tools/update_deb_packages/src:update_deb_packages",
+        "//deb_packages/tools/update_deb_packages/src:update_deb_packages-darwin",
+        "//deb_packages/tools/update_deb_packages/src:update_deb_packages-linux",
     ]
 )
 
@@ -14,6 +15,7 @@ pkg_tar(
     extension = "tar.gz",
     package_dir = "deb_packages/private",
     srcs = [
+        "development_defs.bzl",
         "//deb_packages/private:std_package",
     ]
 )

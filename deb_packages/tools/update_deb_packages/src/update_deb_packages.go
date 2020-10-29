@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -17,6 +18,7 @@ import (
 	"path"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -32,6 +34,58 @@ var FORCE_PACKAGE_IDENT = `{
   }
 }
 `
+
+func logAndExec(name string, args ...string) *exec.Cmd {
+	logArgs := make([]string, len(args))
+
+	for i, arg := range args {
+		if len(arg) > 100 {
+			logArgs[i] = arg[:100] + "..."
+		} else {
+			logArgs[i] = arg
+		}
+	}
+
+	log.Print(
+		"exec: "+name+" '",
+		strings.Join(logArgs[:], "' '"),
+		"'",
+	)
+	return exec.Command(name, args...)
+}
+
+func logAndExec2(stdin []byte, name string, args ...string) string {
+	cmd := logAndExec(name, args...)
+
+	if stdin != nil {
+		stdin_reader := bytes.NewReader(stdin)
+		cmd.Stdin = stdin_reader
+	}
+
+	var out bytes.Buffer
+	cmd.Stdout = &out
+
+	err := cmd.Run()
+	if err != nil {
+		exiterr, ok := err.(*exec.ExitError)
+		if ok == true {
+			// not every platform might have exit codes
+			// see https://groups.google.com/forum/#!topic/golang-nuts/MI4TyIkQqqg
+			exitCode := exiterr.Sys().(interface {
+				ExitStatus() int
+			}).ExitStatus()
+			// Return code 3 is the intended behaviour for buildozer when using "print" commands
+			if exitCode != 3 {
+				log.Print("Error while excuting command: ", cmd)
+				logFatalErr(err)
+			}
+		} else {
+			logFatalErr(err)
+		}
+	}
+
+	return out.String()
+}
 
 func appendUniq(slice []string, v string) []string {
 	for _, x := range slice {
@@ -50,7 +104,7 @@ func logFatalErr(e error) {
 
 // https://stackoverflow.com/a/33853856/5441396
 func downloadFile(filepath string, url string) (err error) {
-
+	log.Print("downloading: ", url)
 	// Create the file
 	out, err := os.Create(filepath)
 	if err != nil {
@@ -89,7 +143,7 @@ func getFileFromURLList(filepath string, filename string, urls []string) {
 			log.Print(err)
 		} else {
 			success = true
-			// log.Printf("Sucessfully fetched %s\n", parsed.String())
+			log.Printf("Sucessfully fetched %s\n", parsed.String())
 			break
 		}
 	}
@@ -160,7 +214,12 @@ func getPackages(arch string, distroType string, distro string, mirrors []string
 	getFileFromMirror(releasegpgfile.Name(), "Release.gpg", distro, mirrors)
 
 	// check signature
-	checkPgpSignature(pgpKeyFile, releasefile.Name(), releasegpgfile.Name())
+	if pgpKeyFile != "" {
+		log.Print("checking pgp signature ...")
+		checkPgpSignature(pgpKeyFile, releasefile.Name(), releasegpgfile.Name())
+	} else {
+		log.Print("skip checking pgp signature ...")
+	}
 
 	os.Remove(releasegpgfile.Name())
 
@@ -232,10 +291,9 @@ func getPackages(arch string, distroType string, distro string, mirrors []string
 	return parsed
 }
 
-func getStringField(fieldName string, fileName string, ruleName string, workspaceContents []byte) string {
+func getStringField(fieldName string, fileName string, ruleName string, workspaceContents []byte) (string, error) {
 	// buildozer 'print FIELDNAME_GOES_HERE' FILENAME_GOES_HERE:RULENAME_GOES_HERE <WORKSPACE
-	log.Print("buildozer print "+fieldName, fileName+":"+ruleName)
-	cmd := exec.Command("buildozer", "print "+fieldName, fileName+":"+ruleName)
+	cmd := logAndExec("buildozer", "print "+fieldName, fileName+":"+ruleName)
 	wsreader := bytes.NewReader(workspaceContents)
 	if fileName == "-" {
 		// see edit.stdinPackageName why this is a "-"
@@ -263,14 +321,17 @@ func getStringField(fieldName string, fileName string, ruleName string, workspac
 	}
 
 	// remove trailing newline
-	return strings.TrimSpace(out.String())
+	res := strings.TrimSpace(out.String())
+	if res == "(missing)" {
+		return "", errors.New("Missing field")
+	}
+	return res, nil
 }
 
 func getListField(fieldName string, fileName string, ruleName string, workspaceContents []byte) []string {
 	// buildozer 'print FIELDNAME_GOES_HERE' FILENAME_GOES_HERE:RULENAME_GOES_HERE <WORKSPACE
 	// TODO: better failure message if buildozer is not in PATH
-	log.Print("buildozer print "+fieldName, fileName+":"+ruleName)
-	cmd := exec.Command("buildozer", "print "+fieldName, fileName+":"+ruleName)
+	cmd := logAndExec("buildozer", "print "+fieldName, fileName+":"+ruleName)
 	wsreader := bytes.NewReader(workspaceContents)
 	if fileName == "-" {
 		// see edit.stdinPackageName why this is a "-"
@@ -323,8 +384,7 @@ func getListField(fieldName string, fileName string, ruleName string, workspaceC
 
 func getMapField(fieldName string, fileName string, ruleName string, workspaceContents []byte) map[string]string {
 	// buildozer 'print FIELDNAME_GOES_HERE' FILENAME_GOES_HERE:RULENAME_GOES_HERE <WORKSPACE
-	log.Print("buildozer print "+fieldName, fileName+":"+ruleName)
-	cmd := exec.Command("buildozer", "print "+fieldName, fileName+":"+ruleName)
+	cmd := logAndExec("buildozer", "print "+fieldName, fileName+":"+ruleName)
 	wsreader := bytes.NewReader(workspaceContents)
 	if fileName == "-" {
 		// see edit.stdinPackageName why this is a "-"
@@ -367,10 +427,10 @@ func getMapField(fieldName string, fileName string, ruleName string, workspaceCo
 	return m
 }
 
+// TODO(Aistis): deprecate this
 func getAllLabels(labelName string, fileName string, ruleName string, workspaceContents []byte) map[string][]string {
 	// buildozer 'print label LABELNAME_GOES_HERE' FILENAME_GOES_HERE:RULENAME_GOES_HERE <WORKSPACE
-	log.Print("buildozer print label "+labelName, fileName+":"+ruleName)
-	cmd := exec.Command("buildozer", "print label "+labelName, fileName+":"+ruleName)
+	cmd := logAndExec("buildozer", "print label "+labelName, fileName+":"+ruleName)
 	wsreader := bytes.NewReader(workspaceContents)
 	if fileName == "-" {
 		// see edit.stdinPackageName why this is a "-"
@@ -398,14 +458,21 @@ func getAllLabels(labelName string, fileName string, ruleName string, workspaceC
 	}
 
 	// output is quite messed up... best indication for useful lines is that a line ending in "," contains stuff we look for.
+	return buildozerDebsOutToMap(out.String())
+}
+
+func buildozerDebsOutToMap(out string) map[string][]string {
 	pkgs := make(map[string][]string)
 
-	for _, line := range strings.Split(out.String(), "\n") {
+	for _, line := range strings.Split(out, "\n") {
 		if strings.HasSuffix(line, ",") {
 			name := strings.TrimSpace(strings.Split(line, "[")[0])
-			pkgs[name] = appendUniq(pkgs[name], strings.Trim(strings.TrimSpace(strings.Split(line, "[")[1]), "\",]"))
+			pkgs[name] = appendUniq(
+				pkgs[name],
+				strings.Trim(strings.TrimSpace(strings.Split(line, "[")[1]), "\",]"))
 		}
 	}
+
 	return pkgs
 }
 
@@ -423,11 +490,9 @@ func setStringField(fieldName string, fieldContents string, fileName string, rul
 		if err := ioutil.WriteFile(tableFile, []byte(*forceTable), 0666); err != nil {
 			logFatalErr(err)
 		}
-		log.Print("buildozer -add_tables="+tableFile, "set "+fieldName+" "+fieldContents, fileName+":"+ruleName)
-		cmd = exec.Command("buildozer", "-add_tables="+tableFile, "set "+fieldName+" "+fieldContents, fileName+":"+ruleName)
+		cmd = logAndExec("buildozer", "-add_tables="+tableFile, "set "+fieldName+" "+fieldContents, fileName+":"+ruleName)
 	} else {
-		log.Print("buildozer set "+fieldName+" "+fieldContents, fileName+":"+ruleName)
-		cmd = exec.Command("buildozer", "set "+fieldName+" "+fieldContents, fileName+":"+ruleName)
+		cmd = logAndExec("buildozer", "set "+fieldName+" "+fieldContents, fileName+":"+ruleName)
 	}
 	wsreader := bytes.NewReader(workspaceContents)
 	if fileName == "-" {
@@ -459,14 +524,14 @@ func setStringField(fieldName string, fieldContents string, fileName string, rul
 }
 
 func updateWorkspaceRule(workspaceContents []byte, rule string) string {
-	arch := getStringField("arch", "-", rule, workspaceContents)
-	distroType := getStringField("distro_type", "-", rule, workspaceContents)
-	distro := getStringField("distro", "-", rule, workspaceContents)
+	arch, err := getStringField("arch", "-", rule, workspaceContents)
+	distroType, err := getStringField("distro_type", "-", rule, workspaceContents)
+	distro, err := getStringField("distro", "-", rule, workspaceContents)
 	mirrors := getListField("mirrors", "-", rule, workspaceContents)
 	components := getListField("components", "-", rule, workspaceContents)
 	packages := getMapField("packages", "-", rule, workspaceContents)
 	packagesSha256 := getMapField("packages_sha256", "-", rule, workspaceContents)
-	pgpKeyRuleName := getStringField("pgp_key", "-", rule, workspaceContents)
+	pgpKeyRuleName, err := getStringField("pgp_key", "-", rule, workspaceContents)
 
 	packageNames := make([]string, 0, len(packages))
 	for p := range packages {
@@ -484,9 +549,22 @@ func updateWorkspaceRule(workspaceContents []byte, rule string) string {
 	}
 
 	wd, err := os.Getwd()
-	projectName := path.Base(wd)
-	pgpKeyname := path.Join("bazel-"+projectName, "external", pgpKeyRuleName, "file", "downloaded")
 
+	pgpKeyname := ""
+	if strings.HasPrefix(pgpKeyRuleName, "file://") {
+		log.Print("use local pgp key")
+		pgpKeyname = strings.TrimPrefix(pgpKeyRuleName, "file://")
+	} else if pgpKeyRuleName != "" {
+		log.Print("using remote pgp key")
+		projectName := path.Base(wd)
+		pgpKeyname = path.Join(
+			"bazel-"+projectName,
+			"external",
+			pgpKeyRuleName,
+			"file",
+			"downloaded",
+		)
+	}
 	allPackages := getPackages(arch, distroType, distro, mirrors, components, pgpKeyname)
 
 	newPackages := make(map[string]string)
@@ -507,7 +585,7 @@ func updateWorkspaceRule(workspaceContents []byte, rule string) string {
 			packname = packlist[0]
 			packversion = "latest"
 			var err error
-			targetVersion, err = version.NewVersion("0")
+			targetVersion, err = version.NewVersion("0~0-0.0")
 			logFatalErr(err)
 		}
 
@@ -536,7 +614,7 @@ func updateWorkspaceRule(workspaceContents []byte, rule string) string {
 			}
 		}
 		if done == false {
-			log.Fatalf("Package %s isn't available in %s (rule: %s)", pack, distro, rule)
+			log.Fatalf("Package '%s' isn't available in '%s' (rule: %s)", pack, distro, rule)
 		}
 	}
 
@@ -560,12 +638,13 @@ func updateWorkspace(workspaceContents []byte) string {
 	cleanedRules := make([]string, len(rules))
 	copy(cleanedRules, rules)
 
+	log.Print("udating workspace rules:")
 	for i, rule := range rules {
-		log.Print("rule: ", i, rule, "END")
+		log.Print("rule: ", i, " '", rule, "'")
 		tags := getListField("tags", "-", rule, workspaceContents)
 		for _, tag := range tags {
 			// drop rules with the "manual_update" tag
-			if tag == "manual_update" {
+			if tag == "deb_packages_manual_update" {
 				cleanedRules = append(cleanedRules[:i], cleanedRules[i+1:]...)
 			}
 		}
@@ -582,8 +661,54 @@ func addNewPackagesToWorkspace(workspaceContents []byte) string {
 	// TODO: add more rule types here if necessary
 	// e.g. cacerts()
 	allDebs := make(map[string][]string)
+
+	// contains rules that should be managed by deb_packages bazel extension
+	managedRules := make([]string, 0)
+	// should match rules like this:
+	// //container/debian-pkgs [deb_packages_auto]
+	shouldIncludeRuleRE := regexp.MustCompile(`.* \[.*deb_packages_auto.*\]`)
+
 	for _, rule_type := range []string{"container_layer", "container_image"} {
-		tmp := getAllLabels("debs", "//...", "%"+rule_type, workspaceContents)
+		// result_txt be in this format:
+		// //image:zsh (missing)
+		// //test/image:zsh [deb_packages_auto zsh_image]
+		// //test/image:bash [deb_packages_auto bash_image]
+
+		// buildozer 'print label tags' '//...:%container_image' 2>/dev/null
+		result_txt := logAndExec2(
+			nil,
+			"buildozer",
+			"print label tags",
+			"//...:%"+rule_type,
+		)
+
+		if result_txt == "" {
+			// no rules matched
+			continue
+		}
+
+		for _, line := range strings.Split(result_txt, "\n") {
+			if !shouldIncludeRuleRE.MatchString(line) {
+				continue
+			}
+
+			rule := strings.Split(line, " ")[0]
+			managedRules = append(managedRules, rule)
+		}
+	}
+
+	// TODO(Aistis): move to new function this code
+	// extract deb packages from container_layer and container_image rules
+	for _, rule := range managedRules {
+		result_out := logAndExec2(
+			workspaceContents,
+			"buildozer",
+			"print label debs",
+			rule,
+		)
+
+		tmp := buildozerDebsOutToMap(result_out)
+
 		for k, _ := range tmp {
 			if _, ok := allDebs[k]; !ok {
 				allDebs[k] = make([]string, 0)
@@ -594,11 +719,12 @@ func addNewPackagesToWorkspace(workspaceContents []byte) string {
 		}
 	}
 
+	// TODO(Aistis): move to new function this code
 	for rule := range allDebs {
 		tags := getListField("tags", "-", rule, workspaceContents)
 		for _, tag := range tags {
 			// drop rules with the "manual_update" tag
-			if tag == "manual_update" {
+			if tag == "deb_packages_manual_update" {
 				delete(allDebs, rule)
 			}
 		}

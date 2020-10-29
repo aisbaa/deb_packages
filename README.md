@@ -17,9 +17,9 @@ and container_layer from
 
    http_archive(
        name = "aisbaa_rules_deb_packages",
+       sha256 = "f3e141bab8b448a8409b8339ca14c7ce06817c1a597fa027c6b8b019037cc1a7",
        urls = [
-           # replaces this with url from github in your project
-           "file://RELEASE_ARCHIVE_LOCATION",
+           "https://github.com/aisbaa/deb_packages/releases/download/v0.2-beta.1/deb_packages.tar.gz",
        ],
    )
 
@@ -66,6 +66,9 @@ and container_layer from
            debian_buster_amd64_pkgs["zsh-common"],
            debian_buster_amd64_pkgs["zsh"],
        ],
+       tags = [
+           "deb_packages_auto",
+       ]
    )
    ```
 

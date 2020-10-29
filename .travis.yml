@@ -8,26 +8,19 @@ addons:
       - pkg-config
 
 before_install:
-  - wget https://github.com/bazelbuild/bazel/releases/download/3.6.0/bazel_3.6.0-linux-x86_64.deb
-  - sha256sum -c .travis/bazel_3.6.0-linux-x86_64.deb.sha256
-  - sudo dpkg -i bazel_3.6.0-linux-x86_64.deb
+  # install bazel
+  - |
+    wget https://github.com/bazelbuild/bazel/releases/download/3.6.0/bazel_3.6.0-linux-x86_64.deb
+    sha256sum -c .travis/bazel_3.6.0-linux-x86_64.deb.sha256
+    sudo dpkg -i bazel_3.6.0-linux-x86_64.deb
+  # install buildozer
+  - |
+    mkdir bin
+    wget https://github.com/bazelbuild/buildtools/releases/download/3.5.0/buildozer -O bin/buildozer
+    chmod +x bin/buildozer
+
 
 script:
-  # test
-  - bazel run //test:update_deb_packages_for_test_images
-  - bazel run //test/image:zsh
-  - docker run -it --rm bazel/test/image:zsh zsh --version
-
-  # integration test
-  - bazel build //release:release_files
-  - |
-    RELEASE_ARCHIVE_LOCATION=$(realpath bazel-bin/release/package.tar.gz)
-    RELEASE_ARCHIVE_CHECKSUM=$(sha256sum "${RELEASE_ARCHIVE_LOCATION}" | cut -d' ' -f1)
-    sed -i "s:RELEASE_ARCHIVE_LOCATION:$RELEASE_ARCHIVE_LOCATION:" integration_test/WORKSPACE
-    sed -i "s:RELEASE_ARCHIVE_CHECKSUM:$RELEASE_ARCHIVE_CHECKSUM:" integration_test/WORKSPACE
-  - cd integration_test
-
-  - bazel run :update_deb_packages
-  - grep zsh WORKSPACE
-  - bazel run //image:zsh
-  - docker run -it --rm bazel/image:zsh zsh --version
+  - export PATH=`pwd`/bin:$PATH
+  - make test
+  - make test-integration
