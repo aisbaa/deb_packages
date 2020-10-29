@@ -35,13 +35,23 @@ var FORCE_PACKAGE_IDENT = `{
 }
 `
 
-func logAndExec(name string, arg ...string) *exec.Cmd {
+func logAndExec(name string, args ...string) *exec.Cmd {
+	logArgs := make([]string, len(args))
+
+	for i, arg := range args {
+		if len(arg) > 100 {
+			logArgs[i] = arg[:100] + "..."
+		} else {
+			logArgs[i] = arg
+		}
+	}
+
 	log.Print(
 		"exec: "+name+" '",
-		strings.Join(arg[:], "' '"),
+		strings.Join(logArgs[:], "' '"),
 		"'",
 	)
-	return exec.Command(name, arg...)
+	return exec.Command(name, args...)
 }
 
 func logAndExec2(stdin []byte, name string, args ...string) string {
