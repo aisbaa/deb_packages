@@ -1,6 +1,10 @@
 dist: focal
 language: bash
 
+cache:
+  directories:
+    - $HOME/.cache/bazel/
+
 addons:
   apt:
     packages:
