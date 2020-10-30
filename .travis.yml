@@ -3,7 +3,7 @@ language: bash
 
 cache:
   directories:
-    - $HOME/.cache/bazel/
+    - $HOME/.cache/bazel
 
 addons:
   apt:
