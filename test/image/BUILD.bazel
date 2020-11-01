@@ -12,7 +12,11 @@ container_image(
     debs = [
         debian_buster_amd64_pkgs["zsh-common"],
         debian_buster_amd64_pkgs["zsh"],
-        debian_buster_amd64_pkgs_local_key["libargon2-1"],
+
+        # main deps
+
+        # this packages contains interesting version number which is less than 0
+        debian_buster_amd64_pkgs_local_key["libargon2-1"], # parse comment
     ],
     tags = [
         "deb_packages_auto",
@@ -29,7 +33,7 @@ container_image(
         debian_buster_amd64_pkgs_no_key["base-files"],
         debian_buster_amd64_pkgs_no_key["debianutils"],
         debian_buster_amd64_pkgs_no_key["dpkg"],
-        debian_buster_amd64_pkgs_no_key["gawk"],
+        debian_buster_amd64_pkgs_no_key["gawk"],            # required by bash
         debian_buster_amd64_pkgs_no_key["gcc-8-base"],
         debian_buster_amd64_pkgs_no_key["install-info"],
         debian_buster_amd64_pkgs_no_key["libacl1"],
