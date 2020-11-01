@@ -9,6 +9,8 @@ container_image(
         debian_buster_amd64_pkgs["zsh"],
 
         # add package with digits, dots and dashes to the test
-        debian_buster_amd64_pkgs["php7.3-cli"],                     # pulled in by install.yaml
+        debian_buster_amd64_pkgs["php7.3-cli"],   # pulled in by install.yaml
+        # and a package with a plus character
+        debian_buster_amd64_pkgs["libstdc++6"],   # plus is also allowed
     ],
 )

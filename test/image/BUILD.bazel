@@ -17,6 +17,7 @@ container_image(
 
         # this packages contains interesting version number which is less than 0
         debian_buster_amd64_pkgs_local_key["libargon2-1"], # parse comment
+        debian_buster_amd64_pkgs["libstdc++6"],            # plus is also allowed
     ],
     tags = [
         "deb_packages_auto",
