@@ -14,6 +14,7 @@ test-integration:
 	$(bazel) build //release:release_files
 	bash ./integration_test/patch_workspace.sh
 	cd integration_test && $(bazel) run :update_deb_packages
+	grep 'php7.3-cli' integration_test/WORKSPACE
 	cd integration_test && $(bazel) run //image:zsh
 	docker run -it --rm bazel/image:zsh zsh --version
 .PHONY: test-integration
