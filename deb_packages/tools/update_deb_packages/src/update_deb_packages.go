@@ -465,8 +465,10 @@ func getAllLabels(labelName string, fileName string, ruleName string, workspaceC
 // unique deb names
 func buildozerDebsOutToMap(out string) map[string][]string {
 	pkgs := make(map[string][]string)
+	// package name can consist of alphanumeric symbols, a dot (.), a dash (-) and a plus (+).
+	// https://www.debian.org/doc/debian-policy/ch-controlfields.html#s-f-source
 	deb_definition_re := regexp.MustCompile(
-		`^[[:space:]]*(?P<repo>\w+)\["(?P<deb>[\w\d\.\-]+)"\],([[:space:]]*#.*)?`,
+		`^[[:space:]]*(?P<repo>\w+)\["(?P<deb>[\w\d\.\-\+]+)"\],([[:space:]]*#.*)?`,
 	)
 
 	for _, line := range strings.Split(out, "\n") {
