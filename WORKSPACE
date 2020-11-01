@@ -121,10 +121,12 @@ deb_repository(
         "http://deb.debian.org/debian",
     ],
     packages = {
+        "php7.3-cli": "pool/main/p/php7.3/php7.3-cli_7.3.19-1~deb10u1_amd64.deb",
         "zsh": "pool/main/z/zsh/zsh_5.7.1-1_amd64.deb",
         "zsh-common": "pool/main/z/zsh/zsh-common_5.7.1-1_all.deb",
     },
     packages_sha256 = {
+        "php7.3-cli": "30263f918793264ca38e707058baf328372388d4572747588d1781ea1cb64fc3",
         "zsh": "e400e604e452b9d4709889ceec035c3ab26c2e14592fa11f2954a613f911977a",
         "zsh-common": "e6f57ba10d4776cc8895f08ea800a3622c61126f89e92b2a3f2998d4b1e16b9e",
     },

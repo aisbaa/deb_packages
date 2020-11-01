@@ -24,6 +24,17 @@ container_image(
     ],
 )
 
+container_image(
+    name = "php7",
+    base = "@debian10//image",
+    debs = [
+        debian_buster_amd64_pkgs["php7.3-cli"],                     # pulled in by install.yaml
+    ],
+    tags = [
+        "deb_packages_auto",
+        "php_image",
+    ],
+)
 
 container_image(
     name = "bash",
