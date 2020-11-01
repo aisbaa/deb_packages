@@ -466,7 +466,7 @@ func getAllLabels(labelName string, fileName string, ruleName string, workspaceC
 func buildozerDebsOutToMap(out string) map[string][]string {
 	pkgs := make(map[string][]string)
 	deb_definition_re := regexp.MustCompile(
-		`^[[:space:]]*(?P<repo>\w+)\["(?P<deb>[\w\d\-]+)"\],([[:space:]]*#.*)?`,
+		`^[[:space:]]*(?P<repo>\w+)\["(?P<deb>[\w\d\.\-]+)"\],([[:space:]]*#.*)?`,
 	)
 
 	for _, line := range strings.Split(out, "\n") {
