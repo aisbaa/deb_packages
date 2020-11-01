@@ -7,5 +7,8 @@ container_image(
     debs = [
         debian_buster_amd64_pkgs["zsh-common"],
         debian_buster_amd64_pkgs["zsh"],
+
+        # add package with digits, dots and dashes to the test
+        debian_buster_amd64_pkgs["php7.3-cli"],                     # pulled in by install.yaml
     ],
 )
