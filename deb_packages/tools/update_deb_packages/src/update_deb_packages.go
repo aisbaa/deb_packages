@@ -461,16 +461,27 @@ func getAllLabels(labelName string, fileName string, ruleName string, workspaceC
 	return buildozerDebsOutToMap(out.String())
 }
 
+// Converst buildozer print label debs string output to map of repo -> list of
+// unique deb names
 func buildozerDebsOutToMap(out string) map[string][]string {
 	pkgs := make(map[string][]string)
+	deb_definition_re := regexp.MustCompile(
+		`^[[:space:]]*(?P<repo>\w+)\["(?P<deb>[\w\d\-]+)"\],([[:space:]]*#.*)?`,
+	)
 
 	for _, line := range strings.Split(out, "\n") {
-		if strings.HasSuffix(line, ",") {
-			name := strings.TrimSpace(strings.Split(line, "[")[0])
-			pkgs[name] = appendUniq(
-				pkgs[name],
-				strings.Trim(strings.TrimSpace(strings.Split(line, "[")[1]), "\",]"))
+		if !deb_definition_re.MatchString(line) {
+			continue
 		}
+
+		matchedRule := deb_definition_re.FindStringSubmatch(line)
+		repo := matchedRule[1]
+		deb := matchedRule[2]
+
+		pkgs[repo] = appendUniq(
+			pkgs[repo],
+			deb,
+		)
 	}
 
 	return pkgs
